@@ -1,0 +1,24 @@
+{
+    "name": "buzzingpixel/twig-switch",
+    "version": "1.0.0",
+    "description": "Provides a {% switch %} tag for Twig switch case statements",
+    "authors": [
+        {
+            "name": "TJ Draper",
+            "email": "tj@buzzingpixel.com",
+            "homepage": "https://buzzingpixel.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.1",
+        "twig/twig": "^2.5"
+    },
+    "require-dev": {
+        "roave/security-advisories": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "buzzingpixel\\twigswitch\\": "src"
+        }
+    }
+}
