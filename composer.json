@@ -1,6 +1,6 @@
 {
     "name": "buzzingpixel/twig-switch",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Provides a {% switch %} tag for Twig switch case statements",
     "authors": [
         {
@@ -22,5 +22,10 @@
         "psr-4": {
             "buzzingpixel\\twigswitch\\": "src"
         }
+    },
+    "extra": {
+        "twigExtensions": [
+            "buzzingpixel\\twigswitch\\SwitchTwigExtension"
+        ]
     }
 }
