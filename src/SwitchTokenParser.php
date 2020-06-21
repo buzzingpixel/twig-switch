@@ -9,22 +9,22 @@ declare(strict_types=1);
 
 namespace buzzingpixel\twigswitch;
 
-use Twig_Node;
-use Twig_Token;
-use Twig_TokenParser;
-use Twig_Error_Syntax;
+use Twig\Error\SyntaxError;
+use Twig\Node\Node;
+use Twig\Token;
+use Twig\TokenParser\AbstractTokenParser;
 
 /**
  * Based on rejected Twig pull request: https://github.com/twigphp/Twig/pull/185
  */
-class SwitchTokenParser extends Twig_TokenParser
+class SwitchTokenParser extends AbstractTokenParser
 {
     public function getTag(): string
     {
         return 'switch';
     }
 
-    public function parse(Twig_Token $token)
+    public function parse(Token $token)
     {
         $lineno = $token->getLine();
         $stream = $this->parser->getStream();
@@ -33,16 +33,16 @@ class SwitchTokenParser extends Twig_TokenParser
             'value' => $this->parser->getExpressionParser()->parseExpression(),
         ];
 
-        $stream->expect(Twig_Token::BLOCK_END_TYPE);
+        $stream->expect(Token::BLOCK_END_TYPE);
 
         // There can be some whitespace between the {% switch %} and first {% case %} tag.
-        while ($stream->getCurrent()->getType() === Twig_Token::TEXT_TYPE &&
+        while ($stream->getCurrent()->getType() === Token::TEXT_TYPE &&
             trim($stream->getCurrent()->getValue()) === ''
         ) {
             $stream->next();
         }
 
-        $stream->expect(Twig_Token::BLOCK_START_TYPE);
+        $stream->expect(Token::BLOCK_START_TYPE);
 
         $expressionParser = $this->parser->getExpressionParser();
         $cases = [];
@@ -57,28 +57,28 @@ class SwitchTokenParser extends Twig_TokenParser
                     while (true) {
                         $values[] = $expressionParser->parsePrimaryExpression();
                         // Multiple allowed values?
-                        if ($stream->test(Twig_Token::OPERATOR_TYPE, 'or')) {
+                        if ($stream->test(Token::OPERATOR_TYPE, 'or')) {
                             $stream->next();
                         } else {
                             break;
                         }
                     }
-                    $stream->expect(Twig_Token::BLOCK_END_TYPE);
+                    $stream->expect(Token::BLOCK_END_TYPE);
                     $body = $this->parser->subparse([$this, 'decideIfFork']);
-                    $cases[] = new Twig_Node([
-                        'values' => new Twig_Node($values),
+                    $cases[] = new Node([
+                        'values' => new Node($values),
                         'body' => $body
                     ]);
                     break;
                 case 'default':
-                    $stream->expect(Twig_Token::BLOCK_END_TYPE);
+                    $stream->expect(Token::BLOCK_END_TYPE);
                     $nodes['default'] = $this->parser->subparse([$this, 'decideIfEnd']);
                     break;
                 case 'endswitch':
                     $end = true;
                     break;
                 default:
-                    throw new Twig_Error_Syntax(
+                    throw new SyntaxError(
                         sprintf(
                             'Unexpected end of template. Twig was looking for the following tags "case", "default", or "endswitch" to close the "switch" block started at line %d)',
                             $lineno
@@ -88,19 +88,19 @@ class SwitchTokenParser extends Twig_TokenParser
             }
         }
 
-        $nodes['cases'] = new Twig_Node($cases);
+        $nodes['cases'] = new Node($cases);
 
-        $stream->expect(Twig_Token::BLOCK_END_TYPE);
+        $stream->expect(Token::BLOCK_END_TYPE);
 
         return new SwitchNode($nodes, [], $lineno, $this->getTag());
     }
 
-    public function decideIfFork(Twig_Token $token): bool
+    public function decideIfFork(Token $token): bool
     {
         return $token->test(['case', 'default', 'endswitch']);
     }
 
-    public function decideIfEnd(Twig_Token $token): bool
+    public function decideIfEnd(Token $token): bool
     {
         return $token->test(['endswitch']);
     }

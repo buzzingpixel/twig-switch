@@ -9,9 +9,9 @@ declare(strict_types=1);
 
 namespace buzzingpixel\twigswitch;
 
-use Twig_Extension;
+use Twig\Extension\AbstractExtension;
 
-class SwitchTwigExtension extends Twig_Extension
+class SwitchTwigExtension extends AbstractExtension
 {
     public function getTokenParsers(): array
     {
